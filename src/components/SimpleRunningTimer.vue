@@ -88,7 +88,7 @@ function timeRemainingInMilliseconds() {
 </script>
 
 <template>
-    {{ VALUE_TO_DISPLAY }}
+    <div>{{ VALUE_TO_DISPLAY }}</div>
 </template>
 
 <style>
