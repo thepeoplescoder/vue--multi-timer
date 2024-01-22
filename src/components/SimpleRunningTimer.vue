@@ -16,7 +16,7 @@ const startTimestamp = (new Date()).getTime();
 const endTimestamp   = startTimestamp + props.milliseconds;
 const timeRemaining  = ref(0);
 
-const computedTimeRemainingInHundrethsOfSeconds = computed(() => Math.floor(timeRemaining.value / 10));
+const VALUE_TO_DISPLAY = computed(() => Math.floor(timeRemaining.value / 10));
 
 watch(timeRemaining, shutdownTimerIfExpired);
 onMounted(initializeInternalTimer);
@@ -52,7 +52,7 @@ function timeRemainingInMilliseconds() {
 </script>
 
 <template>
-    {{ computedTimeRemainingInHundrethsOfSeconds }}
+    {{ VALUE_TO_DISPLAY }}
 </template>
 
 <style>
