@@ -2,7 +2,7 @@
 </script>
 
 <template>
-    Just a message...
+    This will eventually be a simple timer component.
 </template>
 
 <style>

@@ -1,9 +1,9 @@
 <script setup>
-import TestComponent from "./components/TestComponent.vue";
+import SimpleRunningTimer from "./components/SimpleRunningTimer.vue";
 </script>
 
 <template>
-  <TestComponent />
+  <SimpleRunningTimer />
 </template>
 
 <style>
