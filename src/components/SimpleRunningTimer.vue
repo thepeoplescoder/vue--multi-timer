@@ -19,6 +19,7 @@ const props = defineProps({
 ///////////////////////////////////
 
 let internalTimerId = null;
+let timerExpiredSoundPlayed = false;
 
 ///////////////////////////////////
 ///////////////////////////////////
@@ -38,7 +39,7 @@ const VALUE_TO_DISPLAY = computed(reactiveTimeRemainingInHundredthsOfSeconds);
 ///////////////////////////////////
 ///////////////////////////////////
 
-watch(timeRemaining, shutdownTimerIfExpired);
+watch(timeRemaining, shutdownTimerAndPlaySoundIfExpired);
 onMounted(initializeInternalTimer);
 onUnmounted(shutdownInternalTimer);
 
@@ -57,10 +58,17 @@ function initializeInternalTimer() {
     }
 }
 
-function shutdownTimerIfExpired(timeRemaining) {
+function shutdownTimerAndPlaySoundIfExpired(timeRemaining) {
     if (timeRemaining <= 0) {
         shutdownInternalTimer();
+        playTimerExpiredSound();
     }
+}
+
+function playTimerExpiredSound() {
+    if (timerExpiredSoundPlayed) { return; }
+    alert("A sound would be played here.  For now, here's an alert box.");
+    timerExpiredSoundPlayed = true;
 }
 
 function shutdownInternalTimer() {
