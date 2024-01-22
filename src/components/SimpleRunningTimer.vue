@@ -16,11 +16,15 @@ const startTimestamp = (new Date()).getTime();
 const endTimestamp   = startTimestamp + props.milliseconds;
 const timeRemaining  = ref(0);
 
-const VALUE_TO_DISPLAY = computed(() => Math.floor(timeRemaining.value / 10));
+const VALUE_TO_DISPLAY = computed(reactiveTimeRemainingInHundredthsOfSeconds);
 
 watch(timeRemaining, shutdownTimerIfExpired);
 onMounted(initializeInternalTimer);
 onUnmounted(shutdownInternalTimer);
+
+function tick() {
+    timeRemaining.value = timeRemainingInMilliseconds();
+}
 
 function initializeInternalTimer() {
     if (!internalTimerId) {
@@ -42,8 +46,8 @@ function shutdownInternalTimer() {
     internalTimerId = null;
 }
 
-function tick() {
-    timeRemaining.value = timeRemainingInMilliseconds();
+function reactiveTimeRemainingInHundredthsOfSeconds() {
+    return Math.floor(timeRemaining.value / 10);
 }
 
 function timeRemainingInMilliseconds() {
