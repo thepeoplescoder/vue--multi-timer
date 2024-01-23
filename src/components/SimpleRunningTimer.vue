@@ -4,42 +4,37 @@
 -->
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted, } from "vue";
+import { ref, watch, onMounted, onUnmounted, } from "vue";
+import { SimpleTimer } from "../modules/time";
 
 ///////////////////////////////////
 ///////////////////////////////////
 ///////////////////////////////////
 
 const props = defineProps({
-    milliseconds: { type: Number, required: true, },
+    timer: { type: SimpleTimer, required: true, },
 });
 
+const timer = props.timer;
+
 ///////////////////////////////////
 ///////////////////////////////////
 ///////////////////////////////////
 
-let internalTimerId = null;
+const valueToDisplay = ref(0);
+
+///////////////////////////////////
+///////////////////////////////////
+///////////////////////////////////
+
+let internalTimerId         = null;
 let timerExpiredSoundPlayed = false;
 
 ///////////////////////////////////
 ///////////////////////////////////
 ///////////////////////////////////
 
-const startTimestamp = (new Date()).getTime();
-const endTimestamp   = startTimestamp + props.milliseconds;
-const timeRemaining  = ref(0);
-
-///////////////////////////////////
-///////////////////////////////////
-///////////////////////////////////
-
-const VALUE_TO_DISPLAY = computed(reactiveTimeRemainingInHundredthsOfSeconds);
-
-///////////////////////////////////
-///////////////////////////////////
-///////////////////////////////////
-
-watch(timeRemaining, shutdownTimerAndPlaySoundIfExpired);
+watch(valueToDisplay, shutdownTimerAndPlaySoundIfExpired);
 onMounted(initializeInternalTimer);
 onUnmounted(shutdownInternalTimer);
 
@@ -47,19 +42,19 @@ onUnmounted(shutdownInternalTimer);
 ///////////////////////////////////
 ///////////////////////////////////
 
-function tick() {
-    timeRemaining.value = timeRemainingInMilliseconds();
+function updateDisplayedValue() {
+    valueToDisplay.value = timer.toString();
 }
 
 function initializeInternalTimer() {
     if (!internalTimerId) {
-        tick();
-        internalTimerId = setInterval(tick, 10);
+        updateDisplayedValue();
+        internalTimerId = setInterval(updateDisplayedValue, 10);
     }
 }
 
 function shutdownTimerAndPlaySoundIfExpired(timeRemaining) {
-    if (timeRemaining <= 0) {
+    if (timer.isExpired()) {
         shutdownInternalTimer();
         playTimerExpiredSound();
     }
@@ -67,7 +62,7 @@ function shutdownTimerAndPlaySoundIfExpired(timeRemaining) {
 
 function playTimerExpiredSound() {
     if (timerExpiredSoundPlayed) { return; }
-    alert("A sound would be played here.  For now, here's an alert box.");
+    console.log("A sound would be played here.  For now, here's a message on the console.");
     timerExpiredSoundPlayed = true;
 }
 
@@ -77,18 +72,10 @@ function shutdownInternalTimer() {
     }
     internalTimerId = null;
 }
-
-function reactiveTimeRemainingInHundredthsOfSeconds() {
-    return Math.floor(timeRemaining.value / 10);
-}
-
-function timeRemainingInMilliseconds() {
-    return Math.max(endTimestamp - (new Date()).getTime(), 0);
-}
 </script>
 
 <template>
-    <div>{{ VALUE_TO_DISPLAY }}</div>
+    <div>{{ valueToDisplay }}</div>
 </template>
 
 <style>

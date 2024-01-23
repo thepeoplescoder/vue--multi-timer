@@ -1,12 +1,10 @@
 <script setup>
 import SimpleRunningTimer from "./components/SimpleRunningTimer.vue";
+import { SimpleTimer } from "./modules/time.js";
 </script>
 
 <template>
-  <SimpleRunningTimer :milliseconds="5137" /><br>
-  <SimpleRunningTimer :milliseconds="10000" /><br>
-  <SimpleRunningTimer :milliseconds="25000" /><br>
-  <SimpleRunningTimer :milliseconds="40000" />
+  <SimpleRunningTimer :timer="new SimpleTimer({seconds: 10})" /><br>
 </template>
 
 <style>
