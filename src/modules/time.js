@@ -128,9 +128,7 @@ export function dissectTime(milliseconds) {
 export function intervalAsString(intervalInMilliseconds) {
     const t = dissectTime(intervalInMilliseconds);
 
-    const result = [t.hours, t.minutes, t.seconds].map(v => String(v).padStart(2, "0"));
-
-    result.unshift(String(t.days).padStart(2, "0"));
+    const result = [t.days, t.hours, t.minutes, t.seconds].map(v => String(v).padStart(2, "0"));
     result.push(String(t.milliseconds).padStart(3, "0"));
 
     return result.join(':');

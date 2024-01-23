@@ -4,7 +4,7 @@ import { SimpleTimer } from "./modules/time.js";
 </script>
 
 <template>
-  <SimpleRunningTimer :timer="new SimpleTimer({seconds: 10})" /><br>
+  <SimpleRunningTimer :timer="new SimpleTimer({days: 2})" /><br>
 </template>
 
 <style>
