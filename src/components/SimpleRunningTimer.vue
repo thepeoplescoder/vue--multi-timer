@@ -1,8 +1,3 @@
-<!--
-    SimpleRunningTimer.vue
-    A timer that runs immediately upon existing.
--->
-
 <script setup>
 import { ref, watch, onMounted, onUnmounted, } from "vue";
 import { SimpleTimer } from "../modules/time";
@@ -15,7 +10,7 @@ const props = defineProps({
     timer: { type: SimpleTimer, required: true, },
 });
 
-const timer = props.timer;
+const { timer } = props;
 
 ///////////////////////////////////
 ///////////////////////////////////
