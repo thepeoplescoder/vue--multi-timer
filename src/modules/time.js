@@ -3,8 +3,6 @@ import throwNew from "./throwExpression.js";
 
 export const now = () => (new Date()).getTime();
 
-export const isAnIntervalObject = obj => "days"
-
 /**
  * A class describing an actively running timer.
  * This class does not handle any tick events.  It simply encapsulates
