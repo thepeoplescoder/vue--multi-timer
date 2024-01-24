@@ -2,16 +2,19 @@ export const MILLIS_PER_SECOND  = 1000;
 export const SECONDS_PER_MINUTE = 60;
 export const MINUTES_PER_HOUR   = 60;
 export const HOURS_PER_DAY      = 24;
+export const DAYS_PER_WEEK      = 7;
 
 export const MILLIS_PER_MINUTE = SECONDS_PER_MINUTE * MILLIS_PER_SECOND;
 export const MILLIS_PER_HOUR   = MINUTES_PER_HOUR   * MILLIS_PER_MINUTE;
 export const MILLIS_PER_DAY    = HOURS_PER_DAY      * MILLIS_PER_HOUR;
+export const MILLIS_PER_WEEK   = DAYS_PER_WEEK      * MILLIS_PER_DAY;
 
 export default {
     MILLIS_PER_SECOND,
     SECONDS_PER_MINUTE,
     MINUTES_PER_HOUR,
     HOURS_PER_DAY,
+    DAYS_PER_WEEK,
     MILLIS_PER_MINUTE,
     MILLIS_PER_HOUR,
     MILLIS_PER_DAY,

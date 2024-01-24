@@ -1,9 +1,9 @@
 <script setup>
-import { ref, watch, onMounted, onUnmounted, } from "vue";
-import { SimpleTimer } from "../modules/time";
+import { ref, watch, computed, onMounted, onUnmounted, } from "vue";
+import { SimpleTimer, intervalToString } from "../modules/time";
 
 ///////////////////////////////////
-///////////////////////////////////
+// props //////////////////////////
 ///////////////////////////////////
 
 const props = defineProps({
@@ -13,64 +13,67 @@ const props = defineProps({
 const { timer } = props;
 
 ///////////////////////////////////
-///////////////////////////////////
-///////////////////////////////////
-
-const valueToDisplay = ref(0);
-
-///////////////////////////////////
-///////////////////////////////////
+// reactive state and lifecycle ///
 ///////////////////////////////////
 
-let internalTimerId         = null;
-let timerExpiredSoundPlayed = false;
+const reactiveTimeRemaining = ref("Loading...");
 
-///////////////////////////////////
-///////////////////////////////////
-///////////////////////////////////
-
-watch(valueToDisplay, shutdownTimerAndPlaySoundIfExpired);
-onMounted(initializeInternalTimer);
-onUnmounted(shutdownInternalTimer);
-
-///////////////////////////////////
-///////////////////////////////////
-///////////////////////////////////
-
-function updateDisplayedValue() {
-    valueToDisplay.value = timer.toString();
-}
-
-function initializeInternalTimer() {
-    if (!internalTimerId) {
-        updateDisplayedValue();
-        internalTimerId = setInterval(updateDisplayedValue, 10);
+watch(reactiveTimeRemaining, () => {
+    if (timer.isExpired) {
+        internalTimer.shutdown();
+        timerExpiredSound.play();
     }
+});
+
+onMounted   (() => internalTimer.initialize());
+onUnmounted (() => internalTimer.shutdown());
+
+///////////////////////////////////
+// helper functions ///////////////
+///////////////////////////////////
+
+function tick() {
+    reactiveTimeRemaining.value = timer.toString();
 }
 
-function shutdownTimerAndPlaySoundIfExpired(timeRemaining) {
-    if (timer.isExpired()) {
-        shutdownInternalTimer();
-        playTimerExpiredSound();
-    }
-}
+///////////////////////////////////
+// internal timer state ///////////
+///////////////////////////////////
 
-function playTimerExpiredSound() {
-    if (timerExpiredSoundPlayed) { return; }
-    console.log("A sound would be played here.  For now, here's a message on the console.");
-    timerExpiredSoundPlayed = true;
-}
+let internalTimer = {
+    id: 0,
+    initialize() {
+        if (!this.id) {
+            tick();
+            this.id = setInterval(tick, 10);
+            console.log("internal timer " + this.id + " initialized");
+        }
+    },
+    shutdown() {
+        if (this.id) {
+            clearInterval(this.id);
+            console.log("internal timer " + this.id + " shutdown");
+        }
+        this.id = 0;
+    },
+};
 
-function shutdownInternalTimer() {
-    if (internalTimerId) {
-        clearInterval(internalTimerId);
-    }
-    internalTimerId = null;
+///////////////////////////////////
+// internal play sound state //////
+///////////////////////////////////
+
+let timerExpiredSound = {
+    played: false,
+    play() {
+        if (this.played) { return; }
+        console.log("A sound would be played here, but here's a console message instead.");
+        this.played = true;
+    },
 }
 </script>
 
 <template>
-    <div>{{ valueToDisplay }}</div>
+    <div>{{ reactiveTimeRemaining.slice(0, -1) }}</div>
 </template>
 
 <style>
