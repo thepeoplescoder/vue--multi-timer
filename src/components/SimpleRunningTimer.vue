@@ -16,10 +16,6 @@ const props = defineProps({
 
 const { timer } = props;
 
-function deleteTimer() {
-    emit("onClickDeleteTimer", timer);
-}
-
 ///////////////////////////////////
 // reactive state and lifecycle ///
 ///////////////////////////////////
@@ -73,7 +69,8 @@ let timerExpiredSound = new (class TimerExpiredSound {
             ? reactiveTimeRemaining
             : intervalToString(reactiveTimeRemaining).slice(0, -1) }}
         
-        <button @click="deleteTimer">Delete Timer</button>
+        <button @click="emit('onClickDeleteTimer', timer)">X</button>
+        <button @click="emit('onClickPauseTimer',  timer)">{{ timer.isPaused ? ">" : "||" }}</button>
     </div>
 </template>
 

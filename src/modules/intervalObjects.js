@@ -13,26 +13,39 @@
  */
 
 import { MILLIS_PER_SECOND, MILLIS_PER_MINUTE, MILLIS_PER_HOUR, MILLIS_PER_DAY, MILLIS_PER_WEEK } from "./constants/time";
+import { SECONDS_PER_MINUTE, MINUTES_PER_HOUR, HOURS_PER_DAY, DAYS_PER_WEEK } from "./constants/time";
 import regexDsl from "./regexDsl";
 
-// needed for type verification and formatting
-export const { INTERVAL_OBJECT_KEYS_TO_WIDTHS, INTERVAL_OBJECT_KEYS } =
-    (keysAndWidths => {
-        return {
-            INTERVAL_OBJECT_KEYS_TO_WIDTHS: keysAndWidths.reduce(storeKeysAndWidths, {}),
-            INTERVAL_OBJECT_KEYS:           keysAndWidths.map(v => v.key),
-        };
-        function storeKeysAndWidths(a, v) {
-            a[v.key] = v.width;
-            return a;
+// needed for type verification, formatting, and value checking
+export const { INTERVAL_OBJECT_KEYS_TO_WIDTHS, INTERVAL_OBJECT_KEYS, INTERVAL_KEY_MAX } =
+    (table => {
+        function storeFromTable(keyProp, valueProp) {
+            return (a, v) => {
+                a[v[keyProp]] = v[valueProp];
+                return a;
+            }
         }
+
+        const result = {
+            INTERVAL_OBJECT_KEYS_TO_WIDTHS: table.reduce(storeFromTable("key", "width"), {}),
+            INTERVAL_OBJECT_KEYS:           table.map(v => v.key),
+        };
+
+        result.INTERVAL_KEY_MAX = table
+            .filter(v => v.key != "weeks")
+            .reduce(
+                storeFromTable("key", "max"),
+                {weeks: 10 ** result.INTERVAL_OBJECT_KEYS_TO_WIDTHS.weeks}
+            );
+
+        return result;
     })([
-        { key: "weeks",        width: 4 },      // deliberately in order of decreasing weight
-        { key: "days",         width: 1 },      // so that functions depending on this ordering
-        { key: "hours",        width: 2 },      // will work.
-        { key: "minutes",      width: 2 },
-        { key: "seconds",      width: 2 },
-        { key: "milliseconds", width: 3 },
+        { key: "weeks",        max: null,                   width: 4 },     // deliberately in order of decreasing weight
+        { key: "days",         max: DAYS_PER_WEEK - 1,      width: 1 },     // so that functions depending on this ordering
+        { key: "hours",        max: HOURS_PER_DAY - 1,      width: 2 },     // will work.
+        { key: "minutes",      max: MINUTES_PER_HOUR - 1,   width: 2 },
+        { key: "seconds",      max: SECONDS_PER_MINUTE - 1, width: 2 },
+        { key: "milliseconds", max: 0,                      width: 3 },
     ]);
 
 // needed for type verification
@@ -57,7 +70,7 @@ export const REGEXP_INTERVAL_STRING = (() => {
 })();
 
 // code is documentation.
-export const MAX_INTERVAL_MILLIS = (10 ** INTERVAL_OBJECT_KEYS_TO_WIDTHS.weeks) * MILLIS_PER_WEEK;
+export const MAX_INTERVAL_MILLIS = INTERVAL_KEY_MAX.weeks * MILLIS_PER_WEEK;
 if (MAX_INTERVAL_MILLIS >= Number.MAX_SAFE_INTEGER) {
     throw new Error("The largest interval cannot exceed " + Number.MAX_SAFE_INTEGER + " milliseconds.");
 }
@@ -106,14 +119,7 @@ export function toIntervalObject(milliseconds) {
         return { weeks, days, hours, minutes, seconds, milliseconds };
 
     } else if (isIntervalArray(milliseconds)) {
-        return {
-            weeks:        milliseconds[0],
-            days:         milliseconds[1],
-            hours:        milliseconds[2],
-            minutes:      milliseconds[3],
-            seconds:      milliseconds[4],
-            milliseconds: milliseconds[5],
-        };
+        return INTERVAL_OBJECT_KEYS.reduce((acc, v, i) => ((acc[v] = milliseconds[i]), acc), {});
 
     } else if (isIntervalObject(milliseconds)) {
         return milliseconds;

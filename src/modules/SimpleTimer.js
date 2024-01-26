@@ -107,7 +107,7 @@ export class SimpleTimer {
         this.__lengthInMilliseconds = toMilliseconds(interval);
 
         if (this.length <= 0) {
-            throw new Error("interval must be positive.");
+            throw new Error("interval must be positive.  Length in milliseconds: " + this.length);
         }
 
         this.name = isIntervalObject(interval) && interval.name;
