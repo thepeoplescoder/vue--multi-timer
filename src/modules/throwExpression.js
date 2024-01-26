@@ -1,5 +1,5 @@
-export function throwExpression(ErrorType, ...args) {
+export function throw_(ErrorType, ...args) {
     throw new ErrorType(...args);
 }
 
-export default throwExpression;
+export default throw_;

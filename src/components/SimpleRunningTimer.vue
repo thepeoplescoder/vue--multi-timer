@@ -1,16 +1,24 @@
 <script setup>
-import { ref, watch, computed, onMounted, onUnmounted, } from "vue";
-import { SimpleTimer, intervalToString } from "../modules/time";
+import { ref, watch, onMounted, onUnmounted, } from "vue";
+import { intervalToString } from "../modules/intervalObjects";
+import SimpleTimer from "../modules/SimpleTimer";
+import SetIntervalWrapper from "../modules/SetIntervalWrapper";
 
 ///////////////////////////////////
-// props //////////////////////////
+// props and emits ////////////////
 ///////////////////////////////////
+
+const emit = defineEmits(["onClickPauseTimer", "onClickDeleteTimer"]);
 
 const props = defineProps({
     timer: { type: SimpleTimer, required: true, },
 });
 
 const { timer } = props;
+
+function deleteTimer() {
+    emit("onClickDeleteTimer", timer);
+}
 
 ///////////////////////////////////
 // reactive state and lifecycle ///
@@ -25,55 +33,48 @@ watch(reactiveTimeRemaining, () => {
     }
 });
 
-onMounted   (() => internalTimer.initialize());
+onMounted   (() => internalTimer.run());
 onUnmounted (() => internalTimer.shutdown());
-
-///////////////////////////////////
-// helper functions ///////////////
-///////////////////////////////////
-
-function tick() {
-    reactiveTimeRemaining.value = timer.toString();
-}
 
 ///////////////////////////////////
 // internal timer state ///////////
 ///////////////////////////////////
 
-let internalTimer = {
-    id: 0,
-    initialize() {
-        if (!this.id) {
-            tick();
-            this.id = setInterval(tick, 10);
-            console.log("internal timer " + this.id + " initialized");
-        }
-    },
-    shutdown() {
-        if (this.id) {
-            clearInterval(this.id);
-            console.log("internal timer " + this.id + " shutdown");
-        }
-        this.id = 0;
-    },
-};
+const TICK_INTERVAL_IN_MILLISECONDS = 10;
+
+let internalTimer = new SetIntervalWrapper({
+    handler:  () => reactiveTimeRemaining.value = timer.timeRemainingInMillisecondsNonNegative,
+    interval: TICK_INTERVAL_IN_MILLISECONDS,
+});
 
 ///////////////////////////////////
 // internal play sound state //////
 ///////////////////////////////////
 
-let timerExpiredSound = {
-    played: false,
+let timerExpiredSound = new (class TimerExpiredSound {
+    #played;
+    constructor() {
+        this.#played = false;
+    }
     play() {
-        if (this.played) { return; }
+        if (this.#played) { return; }
+        this.#playHelper();
+        this.#played = true;
+    }
+    #playHelper() {
         console.log("A sound would be played here, but here's a console message instead.");
-        this.played = true;
-    },
-}
+    }
+})();
 </script>
 
 <template>
-    <div>{{ reactiveTimeRemaining.slice(0, -1) }}</div>
+    <div>
+        {{ typeof reactiveTimeRemaining === "string"
+            ? reactiveTimeRemaining
+            : intervalToString(reactiveTimeRemaining).slice(0, -1) }}
+        
+        <button @click="deleteTimer">Delete Timer</button>
+    </div>
 </template>
 
 <style>

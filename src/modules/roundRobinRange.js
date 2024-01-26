@@ -1,5 +1,5 @@
 export function *roundRobinRange(startValueInclusive=0, endValueExclusive=Number.MAX_SAFE_INTEGER) {
-    value = startValueInclusive;
+    let value = startValueInclusive;
     while (true) {
         yield value++;
         if (value >= endValueExclusive) {
