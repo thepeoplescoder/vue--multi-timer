@@ -87,7 +87,7 @@ export const isIntervalArray  = x => x && Array.isArray(x) &&
 
 /**
  * @param {Number} interval The length of the interval, in milliseconds.
- * @returns A stopwatch-style format (`WWW:DD:HH:MM:SS.mmm`) of the given interval, as a `String`.
+ * @returns A stopwatch-style format (`WWWW:D:HH:MM:SS.mmm`) of the given interval, as a `String`.
  */
 export function intervalToString(interval) {
     interval = toIntervalObject(interval);
