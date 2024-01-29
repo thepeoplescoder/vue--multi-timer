@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, watch, onMounted, onUnmounted, } from "vue";
+import { ref, watch, onMounted, onUnmounted, } from "vue";
 import { intervalToString } from "../modules/intervalObjects";
 import LazyAudioPlayer from "../modules/LazyAudioPlayer";
 import SimpleTimer from "../modules/SimpleTimer";
@@ -31,7 +31,7 @@ function onClickPauseTimer() {
 }
 
 ///////////////////////////////////
-// reactive state and lifecycle ///
+// reactive state /////////////////
 ///////////////////////////////////
 
 const reactiveTimeRemaining = ref("Loading...");
@@ -41,6 +41,10 @@ watch(reactiveTimeRemaining, () => {
         timerExpiredSound.play();
     }
 });
+
+///////////////////////////////////
+// lifecycle //////////////////////
+///////////////////////////////////
 
 onMounted   (() => internalTimer.run());
 onUnmounted (() => {
@@ -54,22 +58,22 @@ onUnmounted (() => {
 
 const TICK_INTERVAL_IN_MILLISECONDS = 10;
 
-let internalTimer = new SetIntervalWrapper({
+const internalTimer = new SetIntervalWrapper({
     handler:  () => reactiveTimeRemaining.value = timer.timeRemainingInMilliseconds,
     interval: TICK_INTERVAL_IN_MILLISECONDS,
 });
 
 ///////////////////////////////////
-// internal play sound state //////
+// state of timer expired sound ///
 ///////////////////////////////////
 
 const AUDIO_FILE_LOCATION = "./src/assets/audio/timer-expired.mp3";
 
-let timerExpiredSound = reactive(new LazyAudioPlayer(() => {
+const timerExpiredSound = new LazyAudioPlayer(() => {
     const audio = new Audio(AUDIO_FILE_LOCATION);
     audio.loop = true;
     return audio;
-}));
+});
 </script>
 
 <template>
