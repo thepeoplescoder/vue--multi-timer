@@ -1,20 +1,34 @@
 <script setup>
-import { ref, watch, onMounted, onUnmounted, } from "vue";
+import { ref, reactive, watch, onMounted, onUnmounted, } from "vue";
 import { intervalToString } from "../modules/intervalObjects";
+import LazyAudioPlayer from "../modules/LazyAudioPlayer";
 import SimpleTimer from "../modules/SimpleTimer";
 import SetIntervalWrapper from "../modules/SetIntervalWrapper";
 
 ///////////////////////////////////
-// props and emits ////////////////
+// props //////////////////////////
 ///////////////////////////////////
-
-const emit = defineEmits(["onClickPauseTimer", "onClickDeleteTimer"]);
 
 const props = defineProps({
     timer: { type: SimpleTimer, required: true, },
 });
 
 const { timer } = props;
+
+///////////////////////////////////
+// emits //////////////////////////
+///////////////////////////////////
+
+const emit = defineEmits(["onClickPauseTimer", "onClickDeleteTimer"]);
+
+function onClickDeleteTimer() {
+    timerExpiredSound.stop();
+    emit("onClickDeleteTimer", timer);
+}
+
+function onClickPauseTimer() {
+    emit("onClickPauseTimer", timer);
+}
 
 ///////////////////////////////////
 // reactive state and lifecycle ///
@@ -24,13 +38,15 @@ const reactiveTimeRemaining = ref("Loading...");
 
 watch(reactiveTimeRemaining, () => {
     if (timer.isExpired) {
-        internalTimer.shutdown();
         timerExpiredSound.play();
     }
 });
 
 onMounted   (() => internalTimer.run());
-onUnmounted (() => internalTimer.shutdown());
+onUnmounted (() => {
+    internalTimer.shutdown()
+    timerExpiredSound.stop();
+});
 
 ///////////////////////////////////
 // internal timer state ///////////
@@ -39,7 +55,7 @@ onUnmounted (() => internalTimer.shutdown());
 const TICK_INTERVAL_IN_MILLISECONDS = 10;
 
 let internalTimer = new SetIntervalWrapper({
-    handler:  () => reactiveTimeRemaining.value = timer.timeRemainingInMillisecondsNonNegative,
+    handler:  () => reactiveTimeRemaining.value = timer.timeRemainingInMilliseconds,
     interval: TICK_INTERVAL_IN_MILLISECONDS,
 });
 
@@ -47,30 +63,31 @@ let internalTimer = new SetIntervalWrapper({
 // internal play sound state //////
 ///////////////////////////////////
 
-let timerExpiredSound = new (class TimerExpiredSound {
-    #played;
-    constructor() {
-        this.#played = false;
-    }
-    play() {
-        if (this.#played) { return; }
-        this.#playHelper();
-        this.#played = true;
-    }
-    #playHelper() {
-        console.log("A sound would be played here, but here's a console message instead.");
-    }
-})();
+const AUDIO_FILE_LOCATION = "./src/assets/audio/timer-expired.mp3";
+
+let timerExpiredSound = reactive(new LazyAudioPlayer(() => {
+    const audio = new Audio(AUDIO_FILE_LOCATION);
+    audio.loop = true;
+    return audio;
+}));
 </script>
 
 <template>
-    <div>
-        {{ typeof reactiveTimeRemaining === "string"
-            ? reactiveTimeRemaining
-            : intervalToString(reactiveTimeRemaining).slice(0, -1) }}
-        
-        <button @click="emit('onClickDeleteTimer', timer)">X</button>
-        <button @click="emit('onClickPauseTimer',  timer)">{{ timer.isPaused ? ">" : "||" }}</button>
+    <div v-if="(typeof reactiveTimeRemaining === 'string')">
+        <div>{{ reactiveTimeRemaining }}</div>
+    </div>
+    <div v-else-if="reactiveTimeRemaining >= 0">
+        <div>{{ intervalToString(reactiveTimeRemaining).slice(0, -1) }}</div>
+        <div>
+            <button @click="onClickDeleteTimer">X</button>
+            <button @click="onClickPauseTimer">{{ timer.isPaused ? ">" : "||" }}</button>
+        </div>
+    </div>
+    <div v-else>
+        <div>{{ reactiveTimeRemaining }}</div>
+        <div>
+            <button @click="onClickDeleteTimer">X</button>
+        </div>
     </div>
 </template>
 
