@@ -1,14 +1,11 @@
+import throwNew from "./throwNew.js";
 export class LazyAudioPlayer {
-    __audio;
+    __audio = null;
     __supplier;
     constructor(audioSupplier) {
-        this.__audio = null;
-
-        if (typeof audioSupplier !== "function") {
-            throw new TypeError("audioSupplier must be a function that returns an Audio object.");
-        }
-
-        this.__supplier = audioSupplier;
+        this.__supplier = typeof audioSupplier === "function"
+            ? audioSupplier
+            : throwNew(TypeError, "audioSupplier must be a function that returns an Audio object.");
     }
     get isPlaying() {
         return !!this.__audio && !this.__audio.paused;

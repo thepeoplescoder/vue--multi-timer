@@ -3,7 +3,7 @@ import { ref, watch, onMounted, onUnmounted, } from "vue";
 import { intervalToString } from "../modules/intervalObjects";
 import LazyAudioPlayer from "../modules/LazyAudioPlayer";
 import SimpleTimer from "../modules/SimpleTimer";
-import SetIntervalWrapper from "../modules/SetIntervalWrapper";
+import NeverEndingRequestAnimationFrameWrapper from "../modules/NeverEndingRequestAnimationFrameWrapper";
 
 ///////////////////////////////////
 // props //////////////////////////
@@ -56,11 +56,8 @@ onUnmounted (() => {
 // internal timer state ///////////
 ///////////////////////////////////
 
-const TICK_INTERVAL_IN_MILLISECONDS = 10;
-
-const internalTimer = new SetIntervalWrapper({
-    handler:  () => reactiveTimeRemaining.value = timer.timeRemainingInMilliseconds,
-    interval: TICK_INTERVAL_IN_MILLISECONDS,
+const internalTimer = new NeverEndingRequestAnimationFrameWrapper({
+    callback: () => reactiveTimeRemaining.value = timer.timeRemainingInMilliseconds,
 });
 
 ///////////////////////////////////

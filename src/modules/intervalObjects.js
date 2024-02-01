@@ -17,6 +17,7 @@ import { SECONDS_PER_MINUTE, MINUTES_PER_HOUR, HOURS_PER_DAY, DAYS_PER_WEEK } fr
 import regexDsl from "./regexDsl";
 
 // needed for type verification, formatting, and value checking
+const WEEKS_WIDTH = 4;
 export const { INTERVAL_OBJECT_KEYS_TO_WIDTHS, INTERVAL_OBJECT_KEYS, INTERVAL_KEY_MAX } =
     (table => {
         function storeFromTable(keyProp, valueProp) {
@@ -31,21 +32,16 @@ export const { INTERVAL_OBJECT_KEYS_TO_WIDTHS, INTERVAL_OBJECT_KEYS, INTERVAL_KE
             INTERVAL_OBJECT_KEYS:           table.map(v => v.key),
         };
 
-        result.INTERVAL_KEY_MAX = table
-            .filter(v => v.key != "weeks")
-            .reduce(
-                storeFromTable("key", "max"),
-                {weeks: 10 ** result.INTERVAL_OBJECT_KEYS_TO_WIDTHS.weeks}
-            );
+        result.INTERVAL_KEY_MAX = table.reduce(storeFromTable("key", "max"), {});
 
         return result;
     })([
-        { key: "weeks",        max: null,                   width: 4 },     // deliberately in order of decreasing weight
-        { key: "days",         max: DAYS_PER_WEEK - 1,      width: 1 },     // so that functions depending on this ordering
-        { key: "hours",        max: HOURS_PER_DAY - 1,      width: 2 },     // will work.
-        { key: "minutes",      max: MINUTES_PER_HOUR - 1,   width: 2 },
-        { key: "seconds",      max: SECONDS_PER_MINUTE - 1, width: 2 },
-        { key: "milliseconds", max: 0,                      width: 3 },
+        { key: "weeks",        max: 10 ** WEEKS_WIDTH - 1,  width: WEEKS_WIDTH },   // deliberately in order of decreasing weight
+        { key: "days",         max: DAYS_PER_WEEK - 1,      width: 1           },   // so that functions depending on this ordering
+        { key: "hours",        max: HOURS_PER_DAY - 1,      width: 2           },   // will work.
+        { key: "minutes",      max: MINUTES_PER_HOUR - 1,   width: 2           },
+        { key: "seconds",      max: SECONDS_PER_MINUTE - 1, width: 2           },
+        { key: "milliseconds", max: 0,                      width: 3           },
     ]);
 
 // needed for type verification
@@ -70,13 +66,13 @@ export const REGEXP_INTERVAL_STRING = (() => {
 })();
 
 // code is documentation.
-export const MAX_INTERVAL_MILLIS = INTERVAL_KEY_MAX.weeks * MILLIS_PER_WEEK;
-if (MAX_INTERVAL_MILLIS >= Number.MAX_SAFE_INTEGER) {
-    throw new Error("The largest interval cannot exceed " + Number.MAX_SAFE_INTEGER + " milliseconds.");
+export const MAX_INTERVAL_MILLIS_EXCLUSIVE = (INTERVAL_KEY_MAX.weeks + 1) * MILLIS_PER_WEEK;
+if (MAX_INTERVAL_MILLIS_EXCLUSIVE >= Number.MAX_SAFE_INTEGER) {
+    throw new Error("The largest interval cannot be " + Number.MAX_SAFE_INTEGER + " milliseconds or greater.");
 }
 
 export const INTERVAL_STRING_LENGTH =
-    Object.entries(INTERVAL_OBJECT_KEYS_TO_WIDTHS).reduce((acc, [_, width]) => (acc + width), 0) +
+    Object.entries(INTERVAL_OBJECT_KEYS_TO_WIDTHS).reduce(  (acc, [_, width]) => (acc + width), 0  ) +
     INTERVAL_OBJECT_KEYS.length - 1;
 
 // Effectively defines an interval object/string/array.

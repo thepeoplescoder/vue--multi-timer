@@ -1,18 +1,23 @@
 /**
  * Encapsulates the setInterval setup/teardown pattern.
  */
+const DEFAULT_INTERVAL_MILLIS = 10;
 export class SetIntervalWrapper {
-    __handler;
+    __callback;
     __interval;
     __id = 0;
-    constructor({ handler, interval }) {
-        this.__handler = handler;
+    constructor({ callback, interval }) {
+        if (interval == undefined) {
+            interval = DEFAULT_INTERVAL_MILLIS;
+        }
+
+        this.__callback = callback;
         this.__interval = interval;
     }
     run() {
         if (!this.__id) {
-            this.__handler();
-            this.__id = setInterval(this.__handler, this.__interval);
+            this.__callback();
+            this.__id = setInterval(this.__callback, this.__interval);
             console.log("internal timer " + this.__id + " initialized");
         }
     }
