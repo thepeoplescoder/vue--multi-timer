@@ -1,6 +1,7 @@
 # multi-timer
 
-A basic multi timer application, written in Vue.js.
+A basic multi timer application, using [Vue.js][vue-js-homepage]
+and [Tailwind CSS][tailwind-css-homepage].
 
 ## Why Write It?
 
@@ -95,6 +96,8 @@ What remains is as follows:
 * Users should be able to name and rename timers
 * Timers should be searchable by name
 
-[node-js-homepage]:     https://nodejs.org/
-[nvm-homepage]:         https://github.com/nvm-sh/nvm
-[nvm-windows-homepage]: https://github.com/coreybutler/nvm-windows
+[node-js-homepage]:      https://nodejs.org/
+[nvm-homepage]:          https://github.com/nvm-sh/nvm
+[nvm-windows-homepage]:  https://github.com/coreybutler/nvm-windows
+[vue-js-homepage]:       https://vuejs.org/
+[tailwind-css-homepage]: https://tailwindcss.com/
